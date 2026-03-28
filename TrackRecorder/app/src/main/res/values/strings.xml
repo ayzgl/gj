@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">轨迹记录器</string>
+    <string name="title_activity_history">历史记录</string>
+    <string name="title_activity_map">轨迹地图</string>
+    
+    <!-- Main Activity -->
+    <string name="start_tracking">开始记录</string>
+    <string name="stop_tracking">停止记录</string>
+    <string name="view_history">查看历史</string>
+    <string name="current_location">当前位置</string>
+    <string name="tracking_status">记录状态</string>
+    <string name="tracking_active">正在记录中…</string>
+    <string name="tracking_inactive">记录已停止</string>
+    <string name="distance_traveled">距离: %1$.2f 公里</string>
+    <string name="duration">时长: %1$s</string>
+    <string name="speed">速度: %1$.2f km/h</string>
+    
+    <!-- Permission messages -->
+    <string name="location_permission_required">需要位置权限才能记录轨迹</string>
+    <string name="permission_denied">权限被拒绝，无法使用轨迹记录功能</string>
+    <string name="grant_permission">授予权限</string>
+    
+    <!-- History Activity -->
+    <string name="no_history">暂无轨迹记录</string>
+    <string name="track_date">日期: %1$s</string>
+    <string name="track_distance">距离: %1$.2f km</string>
+    <string name="track_duration">时长: %1$s</string>
+    <string name="delete_track">删除</string>
+    <string name="view_on_map">在地图查看</string>
+    <string name="export_gpx">导出GPX</string>
+    
+    <!-- Map Activity -->
+    <string name="loading_map">正在加载地图…</string>
+    <string name="start_point">起点</string>
+    <string name="end_point">终点</string>
+    
+    <!-- Service notifications -->
+    <string name="tracking_notification_title">轨迹记录中</string>
+    <string name="tracking_notification_content">正在记录您的运动轨迹</string>
+    <string name="tracking_notification_channel">轨迹记录</string>
+    
+    <!-- Errors -->
+    <string name="location_unavailable">无法获取位置信息</string>
+    <string name="gps_disabled">GPS未开启</string>
+    <string name="storage_error">存储错误</string>
+    <string name="unknown_error">未知错误</string>
+    
+    <!-- Actions -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="share">分享</string>
+    <string name="save">保存</string>
+</resources>

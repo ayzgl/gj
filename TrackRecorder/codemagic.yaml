@@ -1,0 +1,109 @@
+workflows:
+  android-release:
+    name: Android Release Build
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    
+    environment:
+      android_signing:
+        - trackrecorder_keystore  # 需要在CodeMagic中配置
+      groups:
+        - google_play_credentials  # 可选: 发布到Google Play的凭证组
+      vars:
+        PACKAGE_NAME: "com.trackrecorder.app"
+        GOOGLE_PLAY_TRACK: "internal"  # 发布轨道: internal, alpha, beta, production
+    
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+          # 设置Google Maps API Key (需要在CodeMagic中配置环境变量)
+          if [ -n "$MAPS_API_KEY" ]; then
+            echo "MAPS_API_KEY=$MAPS_API_KEY" >> "$CM_BUILD_DIR/local.properties"
+          fi
+      
+      - name: Set up Gradle
+        script: |
+          chmod +x ./gradlew
+      
+      - name: Build AAB (Android App Bundle)
+        script: |
+          # 从Google Play获取版本号并递增
+          LATEST_BUILD_NUMBER=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME" 2>/dev/null || echo "")
+          if [ -z "$LATEST_BUILD_NUMBER" ]; then
+            # 如果没有获取到版本号，使用BUILD_NUMBER
+            UPDATED_BUILD_NUMBER=$BUILD_NUMBER
+          else
+            UPDATED_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
+          fi
+          
+          echo "Building with version code: $UPDATED_BUILD_NUMBER"
+          
+          # 构建release版本
+          ./gradlew bundleRelease \
+            -PversionCode=$UPDATED_BUILD_NUMBER \
+            -PversionName=1.0.$UPDATED_BUILD_NUMBER
+      
+      - name: Build APK
+        script: |
+          # 构建APK作为备用
+          ./gradlew assembleRelease \
+            -PversionCode=$UPDATED_BUILD_NUMBER \
+            -PversionName=1.0.$UPDATED_BUILD_NUMBER
+    
+    artifacts:
+      - app/build/outputs/**/*.aab
+      - app/build/outputs/**/*.apk
+    
+    publishing:
+      # 邮件通知配置
+      email:
+        recipients:
+          - ${USER_EMAIL}  # 使用CodeMagic中的用户邮箱
+        notify:
+          success: true
+          failure: true
+      
+      # Google Play发布配置 (可选，需要配置凭证)
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS  # 需要在CodeMagic中配置
+        track: $GOOGLE_PLAY_TRACK
+        submit_as_draft: true
+        changes_not_sent_for_review: true
+    
+  # 调试构建工作流
+  android-debug:
+    name: Android Debug Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    
+    environment:
+      vars:
+        PACKAGE_NAME: "com.trackrecorder.app"
+    
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+          if [ -n "$MAPS_API_KEY" ]; then
+            echo "MAPS_API_KEY=$MAPS_API_KEY" >> "$CM_BUILD_DIR/local.properties"
+          fi
+      
+      - name: Set up Gradle
+        script: |
+          chmod +x ./gradlew
+      
+      - name: Build Debug APK
+        script: |
+          ./gradlew assembleDebug
+    
+    artifacts:
+      - app/build/outputs/**/*.apk
+    
+    publishing:
+      email:
+        recipients:
+          - ${USER_EMAIL}
+        notify:
+          success: true
+          failure: true
